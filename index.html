@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>致慧</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at 50% 50%, #fffdf7 0%, #fbe8c7 50%, #e6c17a 100%);
+            font-family: 'Georgia', serif;
+            overflow: hidden;
+            color: #5c4033;
+        }
+
+        .contenedor-frasco {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .contenedor-frasco:hover {
+            transform: scale(1.05) translateY(-5px);
+        }
+
+        .corcho {
+            width: 65px;
+            height: 30px;
+            background: linear-gradient(to right, #b5835a, #c89b72, #b5835a);
+            border-radius: 6px 6px 3px 3px;
+            position: relative;
+            top: 8px;
+            z-index: 2;
+            box-shadow: inset 0 -4px 6px rgba(0,0,0,0.2), 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .cuello-frasco {
+            width: 80px;
+            height: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            top: 4px;
+            z-index: 1;
+            backdrop-filter: blur(5px);
+            box-shadow: inset 10px 0 10px rgba(255,255,255,0.3);
+        }
+
+        .frasco {
+            width: 150px;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 40px 40px 50px 50px;
+            backdrop-filter: blur(8px);
+            box-shadow: 
+                0 20px 40px rgba(180, 130, 50, 0.2), 
+                inset 15px 0 20px rgba(255,255,255,0.5),
+                inset -10px -10px 20px rgba(255, 255, 255, 0.2);
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .magia {
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, rgba(255, 220, 100, 1) 0%, rgba(255, 180, 50, 0.6) 40%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(3px);
+            animation: flotarLatido 4s ease-in-out infinite;
+        }
+
+        @keyframes flotarLatido {
+            0%, 100% { transform: translateY(15px) scale(0.9); opacity: 0.8; }
+            50% { transform: translateY(-15px) scale(1.15); opacity: 1; }
+        }
+
+        .resplandor {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255,215,0,0.15) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Menú de selección */
+        .selector {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(255, 252, 245, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            box-shadow: 0 15px 35px rgba(120, 80, 20, 0.2);
+            text-align: center;
+            z-index: 150;
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .selector.visible {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+            visibility: visible;
+        }
+
+        .selector h3 {
+            margin-top: 0;
+            color: #d4af37;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .btn-opcion {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: transparent;
+            color: #8c6b4a;
+            border: 1px solid #c09040;
+            border-radius: 20px;
+            font-family: inherit;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-opcion:hover {
+            background: #c09040;
+            color: white;
+        }
+
+        /* Tarjeta de papel desplegable */
+        .papel {
+            position: absolute;
+            width: 320px;
+            padding: 45px 35px;
+            background: #fffcf7; 
+            color: #5c4033; 
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 25px 50px rgba(120, 80, 20, 0.15);
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 200;
+            pointer-events: none;
+            visibility: hidden;
+        }
+
+        .papel.abierto {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+            visibility: visible;
+        }
+
+        .papel h2 {
+            margin-top: 0;
+            font-size: 1.8em; 
+            border-bottom: 1px solid #f0e6d2;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            font-weight: normal;
+        }
+
+        .papel p {
+            font-size: 1.2em;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .cerrar {
+            margin-top: 35px;
+            padding: 12px 28px;
+            background: transparent;
+            color: #c09040;
+            border: 1px solid #c09040;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+        
+        .cerrar:hover {
+            background: #c09040;
+            color: white;
+        }
+
+        .notificacion {
+            position: absolute;
+            top: 40px;
+            background: rgba(255, 252, 245, 0.9);
+            color: #8c6b4a;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1em;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* Botón de reseteo para tus pruebas */
+        .btn-test {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.1);
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 10px;
+            color: #555;
+            cursor: pointer;
+            z-index: 999;
+        }
+        .btn-test:hover { background: rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+
+    <div class="notificacion" id="notificacion">Aún están durmiendo las palabras...</div>
+
+    <div class="contenedor-frasco" onclick="iniciarApertura()">
+        <div class="resplandor"></div>
+        <div class="corcho"></div>
+        <div class="cuello-frasco"></div>
+        <div class="frasco">
+            <div class="magia"></div>
+        </div>
+    </div>
+
+    <!-- Menú para elegir -->
+    <div class="selector" id="selector">
+        <h3>¿Qué te gustaría hoy?</h3>
+        <button class="btn-opcion" onclick="elegirOpcion('frase')">💌 Mensajito<br>小信息</button>
+        <button class="btn-opcion" onclick="elegirOpcion('chiste')">😊 Chistecito<br>小笑话</button>
+        <button class="btn-opcion" style="border:none; margin-top:5px; padding:5px; font-size:0.8em;" onclick="cerrarSelector(event)">Cancelar</button>
+    </div>
+
+    <div class="papel" id="papel">
+        <h2 id="icono-corazon">❤️</h2>
+        <p id="texto-mensaje"></p>
+        <button class="cerrar" onclick="cerrarPapel(event)">Guardar papelito</button>
+    </div>
+
+    <!-- BORRAR ESTA LÍNEA ANTES DE ENVIAR (Botón para limpiar la memoria) -->
+    <button class="btn-test" onclick="localStorage.clear(); location.reload();">🔄 Reset de prueba</button>
+
+    <script>
+        // ================= CONFIGURACIÓN =================
+        const HORA_DESBLOQUEO = 8; 
+        const ZONA_HORARIA = 'Asia/Shanghai';
+        
+        const INICIO_ANO = 2026;
+        const INICIO_MES = 9; 
+        const INICIO_DIA = 29;
+
+        const mensajes = [
+			"Hoy te toca recibir cariño, no negociamos. 😌<br>今天轮到你收下关心了，不接受讨价还价。😌",
+            "Contigo nunca sé exactamente hacia dónde va una conversación, y eso me encanta.<br>和你聊天的时候，我永远不知道话题会跑到哪里去，而我很喜欢这一点。",
+			"No tienes que demostrarle nada a nadie hoy.<br>今天你不需要向任何人证明什么。",
+			"我爱你，慧. Todo es mejor si estás tú.",
+			"Come bien hoy, ¿sí?<br>今天要好好吃饭，好吗？",
+			"No quiero añadir peso a tus días; quiero aportar un poquito de calma.<br>我不想给你的日子增加负担，只想带给你一点平静。",
+            "希望你每天都能开心一点. Siempre estoy aquí para ti.",
+			"Lo que sientes merece ser escuchado.<br>你的感受值得被认真倾听。",
+			"Tu única obligación ahora mismo es respirar. 😂<br>你现在唯一的任务就是呼吸。😂",
+			"Quiero que nuestra compañía sea algo que te haga bien.<br>我希望我们的陪伴是一件能让你感觉舒服和幸福的事情。",
+            "你在，我就觉得很安心. Eres mi lugar seguro.",
+			"Si el trabajo te está agotando, piensa que al menos el día también está pasando.<br>如果工作让你很累，就想想至少这一天也正在慢慢过去。",
+			"Mañana ya pensaremos en mañana.<br>明天的事情，明天再想。",
+            "你让我变成了更好的人. Me inspiras a ser mejor cada día, 慧.",
+			"No dejes que una mala hora decida cómo será todo tu día.<br>别让糟糕的一个小时决定你一整天的心情。",
+			"Me gusta conocerte tal como eres.<br>我喜欢认识真实的你。",
+			"El trabajo puede esperar un poquito; tu descanso también es importante.<br>工作可以暂时放一放，你的休息也很重要。",
+            "跟你在⼀起，时间过得好快. El tiempo vuela cuando hablamos.",
+			"Te mando un poquito de energía para que sobrevivas al trabajo.<br>给你送一点能量，希望你能顺利熬过工作。",
+			"Que nunca nos falten motivos para reírnos juntos.<br>希望我们永远都不缺一起笑的理由。",
+			"Hoy sobrevivimos y mañana seguimos.<br>今天先好好熬过去，明天再继续。",
+			"Está bien admitir que estás cansada.<br>承认自己累了也没关系。",
+            "距离不算什么. Las distancias no existen cuando los detalles nacen del corazón.",
+			"Me gusta mucho escucharte hablar de las cosas que te gustan.<br>我很喜欢听你聊你喜欢的东西。",
+			"No dejes que un mal día de trabajo arruine todo tu día.<br>别让糟糕的工作日毁掉你整整一天的心情。",
+			"Si tu día fue difícil, aquí tienes un pequeño recordatorio de que ya terminó.<br>如果今天很辛苦，那就提醒自己一下：这一天已经结束了。",
+			"Pero al menos siempre encontramos el camino de regreso a las risas.<br>不过至少我们总能找到回到笑声里的路。",
+            "你是我最美的遇见. Eres mi casualidad favorita.",	
+			"Conocerte fue una de esas pequeñas sorpresas bonitas de la vida.<br>认识你，是人生中那些美好而意外的小惊喜之一。",
+			"Ojalá tengas sueños bonitos.<br>希望你做个美梦。",
+			"Tómate tu tiempo, no tienes que apresurarte.<br>慢慢来，不需要着急。",
+			"Pensar en ti siempre consigue sacarme una sonrisa.<br>一想到你，我总是会忍不住笑起来。",
+			"Recuerda que descansar no significa rendirse.<br>记住，休息并不代表放弃。",
+			"Cuídate mucho durante el día.<br>白天要好好照顾自己。",
+			"Nuestra conversación tiene una brújula completamente rota. 😂<br>我们聊天的指南针好像彻底坏掉了。😂",
+			"Me gustan tus días buenos y también quiero acompañarte en los difíciles.<br>我喜欢你的开心日子，也希望能陪你度过那些不容易的日子。",
+			"Que tengas un día tranquilo y bonito.<br>希望你今天过得平静又美好。",
+            "看到你的消息，我就开心了. Tu presencia hace la diferencia.",
+			"Me gusta la calma que algunas conversaciones contigo dejan después.<br>我喜欢和你聊完之后留下的那种平静感觉。",
+			"Tú puedes con más de lo que crees, pero tampoco tienes que hacerlo todo de una vez.<br>你能做到的事情比自己想象的更多，但也不需要一次把所有事情都完成。",
+			"Prometo escuchar tus quejas sin cobrarte por minuto.<br>我保证听你抱怨，不按分钟收费。",
+			"Hasta nuestras conversaciones más absurdas me parecen especiales.<br>就连我们那些最离谱的聊天，我都觉得很特别。",
+			"Si estás cansada, no hace falta que seas productiva; puedes ser simplemente tú.<br>如果你累了，就不需要保持效率，做你自己就好。",
+			"Me gusta mucho poder compartir mis días contigo.<br>我很喜欢能和你分享我的每一天。",
+			"Puedes contarme incluso esas cosas que parecen pequeñas.<br>就算是那些看起来很小的事情，你也可以告诉我。",
+			"Me gusta mucho nuestra manera de molestarnos cariñosamente.<br>我很喜欢我们互相开玩笑、互相逗弄的方式。",
+			"Hoy quizá no sea perfecto, pero todavía puede tener momentos bonitos.<br>今天也许并不完美，但依然可以有美好的瞬间。",
+			"Después de un día largo, mereces un poquito de paz.<br>辛苦了一整天之后，你值得拥有一点宁静。",
+			"Quiero que estar conmigo se sienta como un lugar tranquilo.<br>我希望和我在一起的时候，你会觉得那是一个让人安心的地方。",
+			"Espero que hoy encuentres alguna pequeña cosa que te haga feliz.<br>希望今天你能遇到一些让自己开心的小事情。",
+			"Me importa saber cómo estás, no solamente qué estás haciendo.<br>我在意的不只是你在做什么，也很在意你真正的状态。",
+			"No tienes que ser fuerte todo el tiempo.<br>你不需要一直都那么坚强。",
+			"Me gusta mucho la forma en que hablamos y nos entendemos.<br>我很喜欢我们聊天和彼此理解的方式。",
+			"Si el día pesa demasiado, puedes apoyarte un poquito en mí.<br>如果今天让你觉得太累了，你可以稍微依靠我一下。",
+			"Una cosa a la vez.<br>一次做好一件事情就好。",
+			"No pasa nada si hoy simplemente necesitas descansar.<br>如果今天你只是想休息一下，也没关系。",
+			"Si hoy fue pesado, mañana puede ser diferente.<br>如果今天很辛苦，明天也许会不一样。",
+			"No olvides cuidarte mientras cuidas de todo lo demás.<br>在照顾其他事情的时候，也别忘了照顾好自己。",
+			"No minimices lo cansada que estás.<br>不要觉得自己的疲惫不值得一提。",
+			"Me gusta compartir contigo esos pequeños momentos que normalmente nadie nota.<br>我喜欢和你分享那些平时没人注意的小瞬间。",
+			"Me gusta cuando apareces y haces que mi día se sienta diferente.<br>我很喜欢你出现的时候，总能让我的一天变得不一样。",
+			"Hay algo especial en compartir la vida cotidiana con alguien.<br>和一个人分享日常生活，本身就是一件特别的事情。"
+        ];
+
+        // Nuestra propia base de datos bilingüe local (Español/Chino)
+        const baseDeDatosChistes = [
+			"—你在干嘛？<br>—没干嘛。<br>—那你干得好吗？<br>—我可是专业的。<br><br>*—¿Qué haces?*<br>*—Nada.*<br>*—¿Y te sale bien?*<br>*—Soy profesional.*",
+			"我和我的床关系非常稳定。问题是我的闹钟总想拆散我们。<br><br>*Mi cama y yo tenemos una relación muy estable. El problema es que mi alarma intenta separarnos.*",
+			"—你为什么迟到？<br>—因为我出门很早，但在路上分心了。<br><br>*—¿Por qué llegaste tarde?*<br>*—Porque salí temprano, pero me distraje llegando.*",
+			"我买了一本关于如何变得更有条理的书。到现在我还不知道把它放哪儿了。<br><br>*Compré un libro sobre cómo ser más organizado. Todavía no sé dónde lo puse.*",
+			"—你作业写完了吗？<br>—写完了。<br>—那在哪儿呢？<br>—在我的想象里。写得可漂亮了。<br><br>*—¿Ya terminaste la tarea?*<br>*—Sí.*<br>*—¿Y dónde está?*<br>*—En mi imaginación. Quedó preciosa.*",
+			"¿Qué le dice una pared a otra pared?<br>一面墙对另一面墙说了什么？<br><br><strong>Nos vemos en la esquina.</strong><br>我们在拐角处见。 🧱",
+			"我的植物长得很好。它已经有三片叶子了，还欠我一份情感债。<br><br>*Mi planta está creciendo muy bien. Ya tiene tres hojas y una deuda emocional conmigo.*",
+			"—你为什么自言自语？<br>—因为我需要一个聪明的意见。<br><br>*—¿Por qué hablas solo?*<br>*—Porque necesito una opinión inteligente.*",
+			"我开了三次冰箱。虽然没有新食物出现，但我仍在继续调查。<br><br>*Abrí la nevera tres veces. No apareció comida nueva, pero sigo investigando.*",
+			"—你无聊的时候会干嘛？<br>—换个地方无聊。<br><br>*—¿Qué haces cuando estás aburrido?*<br>*—Me aburro en otro lugar.*",
+			"¿Por qué lloraba el libro de matemáticas?<br>为什么数学书在哭？<br><br><strong>Porque tenía muchos problemas.</strong><br>因为它有太多问题了。 📘",
+			"我的手表快了五分钟。现在我是提前迟到了。<br><br>*Mi reloj está adelantado cinco minutos. Ahora llego tarde con anticipación.*",
+			"—你有耐心吗？<br>—有。<br>—有多少？<br>—等一下……我正在想。<br><br>*—¿Tienes paciencia?*<br>*—Sí.*<br>*—¿Cuánta?*<br>*—Un momento… estoy pensando.*",
+			"打扫房间的问题在于，每件物品都有它的故事，而哪个都不想走。<br><br>*El problema de limpiar mi habitación es que cada objeto tiene una historia y ninguno quiere irse.*",
+			"—你睡得好吗？<br>—不知道。我当时睡着了。<br><br>*—¿Dormiste bien?*<br>*—No sé. Estaba dormido.*",
+			"我的狗会坐下、握手，还会装作听不见。第三个是它的拿手好戏。<br><br>*Mi perro sabe sentarse, dar la pata y hacerse el que no escucha. La tercera es su especialidad.*",
+			"—你为什么盯着墙看？<br>—我在等它改变主意。<br><br>*—¿Por qué estás mirando la pared?*<br>*—Estoy esperando que cambie de opinión.*",
+			"我试着存过钱。那是一段非常短暂的经历。<br><br>*Intenté ahorrar dinero. Fue una experiencia muy breve.*",
+			"¿Qué le dice un semáforo a otro semáforo?<br>红绿灯对另一个红绿灯说了什么？<br><br><strong>¡No me mires que me estoy cambiando!</strong><br>别看我，我在换衣服！ 🚦",
+			"—你的节食计划进行得怎么样？<br>—棒极了。今天我已经在脑子里计划过了。<br><br>*—¿Qué tal tu dieta?*<br>*—Excelente. Hoy pensé en hacerla.*",
+			"我的电脑开机太慢了，以至于我们已经培养出了信任关系。<br><br>*Mi computadora tarda tanto en encender que ya desarrollamos una relación de confianza.*",
+			"—你在找什么？<br>—我的眼镜。<br>—你正戴着呢。<br>—完美。少了一件麻烦事。<br><br>*—¿Qué buscas?*<br>*—Mis lentes.*<br>*—Los tienes puestos.*<br>*—Perfecto. Uno menos.*",
+			"沉默是金。直到有人问：“你为什么这么安静？”<br><br>*El silencio es precioso. Hasta que alguien pregunta: “¿Por qué estás tan callado?”*",
+			"—你拿手机干嘛？<br>—我看下时间。<br>—然后呢？<br>—现在我知道我有47条未读通知了。<br><br>*—¿Qué haces con el celular?*<br>*—Lo miro para saber qué hora es.*<br>*—¿Y?*<br>*—Ahora sé que tengo 47 notificaciones.*",
+			"我的房间并不乱。它是按照一种我至今还没弄懂的系统来整理的。<br><br>*Mi habitación no está desordenada. Está organizada según un sistema que todavía no comprendo.*",
+			"—你今天有计划吗？<br>—有。<br>—什么计划？<br>—活到明天。<br><br>*—¿Tienes planes para hoy?*<br>*—Sí.*<br>*—¿Cuáles?*<br>*—Sobrevivir hasta mañana.*",
+			"闹钟六点响了。我也响了，不过是为了告诉它不行。<br><br>*La alarma sonó a las seis. Yo también, pero para decirle que no.*",
+			"—你喜欢做饭吗？<br>—喜欢。<br>—你做什么？<br>—做点叫外卖的借口。<br><br>*—¿Te gusta cocinar?*<br>*—Sí.*<br>*—¿Qué preparas?*<br>*—Excusas para pedir comida.*",
+			"我的记忆力极好。只是需要几天时间才能找到我想要的东西。<br><br>*Mi memoria es excelente. Solo necesita unos días para encontrar lo que busco.*",
+			"—没下雨你为什么带伞？<br>—因为我想让老天知道我准备好了。<br><br>*—¿Por qué llevas paraguas si no llueve?*<br>*—Porque quiero que el cielo sepa que estoy preparado.*",
+			"我的办公桌有两种状态：空无一物和考古现场。<br><br>*Mi escritorio tiene dos estados: vacío y arqueológico.*",
+			"—你学完了吗？<br>—学完了。<br>—你学到了什么？<br>—学到了我需要学习。<br><br>*—¿Terminaste de estudiar?*<br>*—Sí.*<br>*—¿Qué aprendiste?*<br>*—Que necesito estudiar.*",
+			"有时候我的大脑运转得很完美。但今天它没来上班。<br><br>*Hay días en los que mi cerebro funciona perfectamente. Hoy no vino a trabajar.*",
+			"—你星期天都干嘛？<br>—做迎接星期一的心理准备。<br>—有效吗？<br>—没效。<br><br>*—¿Qué haces los domingos?*<br>*—Me preparo mentalmente para el lunes.*<br>*—¿Y funciona?*<br>*—No.*",
+			"我买了一个笔记本用来整理我的想法。现在我的想法被整理在一个我找不到的地方。<br><br>*Compré una libreta para organizar mis ideas. Ahora tengo ideas organizadas en un lugar que no encuentro.*",
+			"—你为什么有三杯咖啡？<br>—一杯给我自己，两杯给我的决定。<br><br>*—¿Por qué tienes tres tazas de café?*<br>*—Una para mí y dos para mis decisiones.*",
+			"我的猫看我的眼神，就像是我在付房租……不过是反过来的那种感觉。<br><br>*Mi gato me mira como si yo pagara el alquiler… pero al revés.*",
+			"—你想要什么礼物？<br>—一栋房子。<br>—要小一点的。<br>—一栋小房子。<br><br>*—¿Qué quieres de regalo?*<br>*—Una casa.*<br>*—Algo más pequeño.*<br>*—Una casa pequeña.*",
+			"待办清单的问题在于，列清单本身就已经算是一项任务了。<br><br>*El problema de las listas de tareas es que hacer la lista ya cuenta como una tarea.*",
+			"—你为什么这么淡定？<br>—因为我还没看我的待办事项。<br><br>*—¿Por qué estás tan tranquilo?*<br>*—Porque todavía no he revisado mis pendientes.*",
+			"我的背包太重了，我觉得它把我的烦恼也装进去了。<br><br>*Mi mochila pesa tanto que creo que también lleva mis problemas.*",
+			"—你会游泳吗？<br>—会。<br>—游得很好吗？<br>—不好，但我知道怎么开始。<br><br>*—¿Sabes nadar?*<br>*—Sí.*<br>*—¿Muy bien?*<br>*—No, pero sé empezar.*",
+			"今天我本来打算高效工作的。后来我坐了五分钟。<br><br>*Hoy iba a ser productivo. Después me senté cinco minutos.*",
+			"—你不知道该做什么的时候会做什么？<br>—问该做什么。<br>—如果没人知道呢？<br>—完美。大家的步调很一致。<br><br>*—¿Qué haces cuando no sabes qué hacer?*<br>*—Pregunto qué hacer.*<br>*—¿Y si nadie sabe?*<br>*—Perfecto. Estamos todos coordinados.*",
+			"每天早上，我的床都有着特别强烈的引力。<br><br>*Mi cama tiene una fuerza gravitatoria especialmente intensa por las mañanas.*",
+			"—你为什么又买了一个杯子？<br>—因为之前的都被占用了。<br>—被咖啡占用了？<br>—被历史占用了。<br><br>*—¿Por qué compraste otra taza?*<br>*—Porque las anteriores estaban ocupadas.*<br>*—¿Por café?*<br>*—Por historia.*",
+			"打印机在我不需要打印任何东西的时候，工作得非常完美。<br><br>*La impresora funciona perfectamente cuando no necesito imprimir nada.*",
+			"—你喜欢早起吗？<br>—我喜欢早起结束之后的感觉。<br><br>*—¿Te gusta madrugar?*<br>*—Me gusta cuando ya pasó.*",
+			"我的手机有面部识别功能。有时候我刚睡醒，连它都认不出我。<br><br>*Mi teléfono tiene reconocimiento facial. A veces ni él me reconoce después de despertarme.*",
+			"—你在空闲时间做什么？<br>—试着弄清楚我的时间去哪儿了。<br><br>*—¿Qué haces en tu tiempo libre?*<br>*—Intento descubrir dónde se fue mi tiempo.*",
+			"我和我的冰箱每天都在对话：它发出噪音，而我期待里面出现食物。<br><br>*Mi refrigerador y yo tenemos una conversación diaria: él hace ruido y yo espero que aparezca comida.*",
+			"—你在忙吗？<br>—没忙。<br>—那来帮我一下。<br>—现在忙了。<br><br>*—¿Estás ocupado?*<br>*—No.*<br>*—Entonces ayúdame.*<br>*—Ahora sí.*",
+			"当我说“我要休息五分钟”时，我的床听成的是“两小时后见”。<br><br>*Cuando digo “voy a descansar cinco minutos”, mi cama entiende “nos vemos en dos horas”.*",
+			"—你口袋里为什么装了块石头？<br>—因为我需要带点情绪稳定的东西。<br><br>*—¿Por qué tienes una piedra en el bolsillo?*<br>*—Porque necesitaba llevar algo con estabilidad emocional.*",
+			"我的日程表上写满了我想在精力充沛时去做的事情。<br><br>*Mi agenda está llena de cosas que pensaba hacer cuando tenía más energía.*",
+			"—你对未来感到担忧吗？<br>—不担忧。我还不认识它呢。<br><br>*—¿Te preocupa el futuro?*<br>*—No. Todavía no lo conozco.*",
+			"我的植物又活过了一周。我想我们现在可以称之为团队合作了。<br><br>*Mi planta sobrevivió otra semana. Creo que ya podemos llamarlo trabajo en equipo.*",
+			"—你拿着地图在干嘛？<br>—找正确的路。<br>—你找到了吗？<br>—没有，但这地图真好看。<br><br>*—¿Qué haces con ese mapa?*<br>*—Busco el camino correcto.*<br>*—¿Y ya lo encontraste?*<br>*—No, pero el mapa está muy bonito.*",
+			"选择性失忆的问题在于，我从来不记得我选择了什么。<br><br>*El problema de tener una memoria selectiva es que nunca recuerdo qué seleccioné.*",
+			"—你想出去散步吗？<br>—想。<br>—去哪儿？<br>—走到冰箱那儿再回来。<br><br>*—¿Quieres salir a caminar?*<br>*—Sí.*<br>*—¿Adónde?*<br>*—Hasta la nevera y regreso.*",
+			"我的电脑问我是否要保存更改。我也希望能保存一些。<br><br>*Mi computadora me preguntó si quería guardar los cambios. Yo también quisiera guardar algunos.*",
+			"—你为什么醒这么早？<br>—我的身体没有征求我的意见就做出了决定。<br><br>*—¿Por qué estás despierto tan temprano?*<br>*—Mi cuerpo tomó una decisión sin consultarme.*",
+			"我的衣服太多了，有些衣服已经是考古文物了。<br><br>*Tengo tanta ropa que algunas prendas ya son piezas arqueológicas.*",
+			"—你盯着日历看什么呢？<br>—我正试图弄清楚这一年都去哪儿了。<br><br>*—¿Qué haces mirando el calendario?*<br>*—Estoy intentando descubrir dónde se fue el año.*",
+			"我的闹钟非常自信。虽然我从来不理它，但它每天都会响。<br><br>*Mi alarma tiene mucha confianza en sí misma. Suena todos los días aunque nunca le hago caso.*",
+			"—你打扫过了吗？<br>—打扫过了。<br>—灰尘去哪儿了？<br>—重新分布了。<br><br>*—¿Ya limpiaste?*<br>*—Sí.*<br>*—¿Dónde está el polvo?*<br>*—Redistribuido.*",
+			"当我弄丢东西时，我首先会找。然后再怪这房子。<br><br>*Cuando pierdo algo, primero lo busco. Después culpo a la casa.*",
+			"—你想听个建议吗？<br>—想。<br>—别迟到。<br>—谢谢。<br>—我来晚了，没早点告诉你。<br><br>*—¿Quieres un consejo?*<br>*—Sí.*<br>*—No llegues tarde.*<br>*—Gracias.*<br>*—Llegué tarde para decírtelo.*",
+			"我的大脑开了很多标签页，而且我不知道它们都是从哪冒出来的。<br><br>*Mi cerebro tiene muchas pestañas abiertas y ninguna sé de dónde salió.*",
+			"—你锻炼得怎么样？<br>—棒极了。看到健身房账单的时候，我挑了一下眉毛。<br><br>*—¿Qué tal el ejercicio?*<br>*—Excelente. Levanté una ceja cuando vi la cuenta del gimnasio.*",
+			"星期一应该自带说明书。<br><br>*El lunes debería venir con instrucciones.*",
+			"—你在读什么？<br>—一本手册。<br>—什么的？<br>—一本我看不懂的说明书。<br><br>*—¿Qué estás leyendo?*<br>*—Un manual.*<br>*—¿De qué?*<br>*—De instrucciones que no entiendo.*",
+			"我的办公桌看起来很平静，但在那些文件下面存在着一个完整的文明。<br><br>*Mi escritorio parece tranquilo, pero debajo de esos papeles existe una civilización completa.*",
+			"—你拿着放大镜干嘛？<br>—我在找我工作的动力。<br><br>*—¿Por qué tienes una lupa?*<br>*—Estoy buscando mis ganas de trabajar.*",
+			"我的手机只剩2%的电了，但奇怪的是，它比我还有活力。<br><br>*Mi teléfono tiene 2% de batería y, curiosamente, más energía que yo.*",
+			"—你今天干嘛了？<br>—干了好几件事。<br>—哪些事？<br>—这还在调查中。<br><br>*—¿Qué hiciste hoy?*<br>*—Varias cosas.*<br>*—¿Cuáles?*<br>*—Eso todavía está en investigación.*",
+			"世上有两种人：整理电线的人，和指望科技解决问题的人。<br><br>*Hay dos tipos de personas: las que ordenan sus cables y las que esperan que la tecnología resuelva el problema.*",
+			"—遥控器在哪儿？<br>—不知道。<br>—你找了吗？<br>—找了。<br>—在哪儿找的？<br>—沙发上。<br>—在你手里。<br>—调查结束。<br><br>*—¿Dónde está el control remoto?*<br>*—No sé.*<br>*—¿Lo buscaste?*<br>*—Sí.*<br>*—¿Dónde?*<br>*—En el sofá.*<br>*—Está en tu mano.*<br>*—Investigación concluida.*",
+			"凌晨两点我的大脑：“你还记得十年前那件丢脸的事吗？”<br><br>*Mi cerebro a las 2 de la mañana: “¿Recuerdas aquella cosa vergonzosa de hace diez años?”*",
+			"—你饿吗？<br>—不饿。<br>—你想吃点东西吗？<br>—现在想了。<br><br>*—¿Tienes hambre?*<br>*—No.*<br>*—¿Quieres comer algo?*<br>*—Ahora sí.*",
+			"雨有一种特殊的天赋：总是在我刚洗完衣服时开始下。<br><br>*La lluvia tiene un talento especial para empezar justo cuando termino de lavar la ropa.*",
+			"—你为什么这么安静？<br>—我在思考。<br>—在想什么？<br>—这也正是我在思考的。<br><br>*—¿Por qué estás tan callado?*<br>*—Estoy pensando.*<br>*—¿En qué?*<br>*—Eso también lo estoy pensando.*",
+			"我的狗以为出门五分钟就是一场国际探险。<br><br>*Mi perro cree que salir cinco minutos significa una expedición internacional.*",
+			"—你做运动了吗？<br>—做了。<br>—什么运动？<br>—我提起了精神。<br><br>*—¿Ya hiciste ejercicio?*<br>*—Sí.*<br>*—¿Cuál?*<br>*—Levanté el ánimo.*",
+			"有些事是凭经验学到的。比如你绝不能相信一把堆满衣服的椅子。<br><br>*Hay cosas que uno aprende con la experiencia. Como que no debe confiar en una silla llena de ropa.*",
+			"—你拿那个空盒子干嘛？<br>—我把它收起来。<br>—干嘛用？<br>—用来装另一个空盒子。<br><br>*—¿Qué haces con esa caja vacía?*<br>*—La guardo.*<br>*—¿Para qué?*<br>*—Para guardar otra caja vacía.*",
+			"我最喜欢的杯子有一个巨大的优势：我确切地知道它在哪，因为我从来没有及时洗过它。<br><br>*Mi taza favorita tiene una ventaja enorme: sé exactamente dónde está porque nunca la lavo a tiempo.*",
+			"—你为什么来这么早？<br>—因为就这一次，我想给时间一个惊喜。<br><br>*—¿Por qué llegaste tan temprano?*<br>*—Porque por una vez quise sorprender al reloj.*",
+			"我的大脑就像一个图书馆：里面有信息，但想找一本特定的书需要去探险。<br><br>*Mi cerebro funciona como una biblioteca: tiene información, pero encontrar un libro específico requiere una expedición.*",
+			"—你想整理房间吗？<br>—想。<br>—什么时候？<br>—等它变整齐的时候。<br><br>*—¿Quieres ordenar tu habitación?*<br>*—Sí.*<br>*—¿Cuándo?*<br>*—Cuando esté ordenada.*",
+			"假期的问题在于，它们有个结束的坏习惯。<br><br>*El problema de las vacaciones es que tienen la pésima costumbre de terminar.*",
+			"—你注意力集中得怎么样？<br>—非常好。<br>—你确定吗？<br>—不好意思，你刚才问什么？<br><br>*—¿Qué tal tu concentración?*<br>*—Muy buena.*<br>*—¿Seguro?*<br>*—Perdón, ¿qué preguntaste?*",
+			"有时我打开一个应用却忘了为什么点进去。我的手机已经熟悉我那种眼神了。<br><br>*A veces abro una aplicación y olvido por qué entré. Mi teléfono ya conoce esa mirada.*",
+			"—你为什么带着笔记本？<br>—为了记下重要的事情。<br>—那你记了什么？<br>—我得记住我把笔记本放哪儿了。<br><br>*—¿Por qué llevas una libreta?*<br>*—Para anotar cosas importantes.*<br>*—¿Y qué has anotado?*<br>*—Que necesito recordar dónde dejé la libreta.*",
+			"我的厨房有一条定律：如果我不知道做什么，总会出现一个鸡蛋。<br><br>*Mi cocina tiene una regla: si no sé qué preparar, siempre aparece un huevo.*",
+			"—你喜欢在压力下工作吗？<br>—不喜欢。我更喜欢在毯子底下待着。<br><br>*—¿Te gusta trabajar bajo presión?*<br>*—No. Prefiero trabajar bajo una manta.*",
+			"我的日历上写满了重要的日子，却没有一个写着“稍微喘口气”。<br><br>*Mi calendario está lleno de fechas importantes y ninguna dice “respira un poco”.*",
+			"—你犯错时会怎么做？<br>—我观察它。<br>—然后呢？<br>—我把它变成经验。<br><br>*—¿Qué haces cuando cometes un error?*<br>*—Lo observo.*<br>*—¿Y después?*<br>*—Lo convierto en experiencia.*",
+			"我的背包有太多口袋，有些口袋肯定在单独纳税。<br><br>*Mi mochila tiene tantos bolsillos que algunos seguramente pagan impuestos por separado.*",
+			"—你手里为什么拿着手机？<br>—因为我刚才在找它。<br><br>*—¿Por qué tienes el teléfono en la mano?*<br>*—Porque lo estaba buscando.*",
+			"有些日子人们需要咖啡。而有些日子，人们需要咖啡自带说明书。<br><br>*Hay días en los que uno necesita café. Y hay otros días en los que uno necesita que el café venga con instrucciones.*",
+			"—你的条理性怎么样？<br>—完美。<br>—那你把那个东西放哪了？<br>—这是机密信息。<br><br>*—¿Qué tal tu organización?*<br>*—Perfecta.*<br>*—¿Dónde guardaste eso?*<br>*—Esa información es confidencial.*",
+			"我今天的计划很简单：做一件事。然后我停下来，花点时间从这个念头中缓过神来。<br><br>*Mi plan para hoy era sencillo: hacer una cosa. Luego hice una pausa para recuperarme de la idea. 😌*"
+        ];
+        // =================================================
+
+        let temporizadorNotificacion;
+        let diasTranscurridosGlobal = 0;
+        let fechaClaveHoy = "";
+
+        function mostrarNotificacion(texto) {
+            const noti = document.getElementById('notificacion');
+            noti.innerText = texto;
+            noti.style.opacity = '1';
+            clearTimeout(temporizadorNotificacion);
+            temporizadorNotificacion = setTimeout(() => { noti.style.opacity = '0'; }, 4000);
+        }
+
+        function iniciarApertura() {
+            const ahoraStr = new Date().toLocaleString("en-US", {timeZone: ZONA_HORARIA});
+            const ahora = new Date(ahoraStr);
+            const horaActual = ahora.getHours();
+            
+            const fechaInicio = new Date(INICIO_ANO, INICIO_MES - 1, INICIO_DIA);
+            const fechaHoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+            
+            diasTranscurridosGlobal = Math.floor((fechaHoy - fechaInicio) / (1000 * 60 * 60 * 24));
+            
+            fechaClaveHoy = `dia_${diasTranscurridosGlobal}`;
+
+            if (diasTranscurridosGlobal < 0) {
+                mostrarNotificacion(`El frasco está sellado. Podrás abrirlo el ${INICIO_DIA}/${INICIO_MES}.`);
+                return;
+            }
+
+            if (horaActual < HORA_DESBLOQUEO) {
+                mostrarNotificacion(`Aún están durmiendo las palabras. Vuelve a las ${HORA_DESBLOQUEO}:00 AM.`);
+                return;
+            }
+
+            const registroHoy = JSON.parse(localStorage.getItem('frasco_registro_hui'));
+
+            if (registroHoy && registroHoy.fecha === fechaClaveHoy) {
+                mostrarEnPapel(registroHoy.contenido);
+            } else {
+                document.getElementById('selector').classList.add('visible');
+            }
+        }
+
+        function elegirOpcion(tipo) {
+            document.getElementById('selector').classList.remove('visible');
+            
+            let contenido = "";
+
+            if (tipo === 'frase') {
+                const indice = diasTranscurridosGlobal % mensajes.length;
+                contenido = mensajes[indice];
+            } else if (tipo === 'chiste') {
+                // Saca un chiste local bilingüe al azar
+                const indiceChiste = Math.floor(Math.random() * baseDeDatosChistes.length);
+                contenido = baseDeDatosChistes[indiceChiste];
+            }
+            
+            guardarYMostrar(contenido);
+        }
+
+        function guardarYMostrar(contenido) {
+            const datosHoy = {
+                fecha: fechaClaveHoy,
+                contenido: contenido
+            };
+            localStorage.setItem('frasco_registro_hui', JSON.stringify(datosHoy));
+            
+            mostrarEnPapel(contenido);
+        }
+
+        function mostrarEnPapel(contenido) {
+            document.getElementById('texto-mensaje').innerHTML = contenido;
+            document.getElementById('papel').classList.add('abierto');
+        }
+
+        function cerrarSelector(evento) {
+            document.getElementById('selector').classList.remove('visible');
+            evento.stopPropagation();
+        }
+
+        function cerrarPapel(evento) {
+            document.getElementById('papel').classList.remove('abierto');
+            evento.stopPropagation(); 
+        }
+    </script>
+</body>
+</html>
